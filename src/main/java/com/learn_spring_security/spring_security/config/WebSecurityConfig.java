@@ -1,6 +1,7 @@
 package com.learn_spring_security.spring_security.config;
 
 import com.learn_spring_security.spring_security.filters.JwtAuthFilter;
+import com.learn_spring_security.spring_security.filters.LoggingFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,19 +23,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
+    private final LoggingFilter loggingFilter;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
+                .csrf(csrfConfig -> csrfConfig.disable())
+                .sessionManagement(sessionConfig -> sessionConfig
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/posts", "/error", "/auth/**").permitAll()
 //                        .requestMatchers("/posts/**").hasAnyRole("ADMIN")
                         .anyRequest().authenticated())
-                .csrf(csrfConfig -> csrfConfig.disable())
-                .sessionManagement(sessionConfig -> sessionConfig
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .formLogin(Customizer.withDefaults());
+                .addFilterBefore(loggingFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
