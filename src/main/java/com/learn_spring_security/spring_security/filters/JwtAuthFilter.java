@@ -1,7 +1,10 @@
 package com.learn_spring_security.spring_security.filters;
 
+import com.learn_spring_security.spring_security.entity.SessionEntity;
 import com.learn_spring_security.spring_security.entity.UserEntity;
+import com.learn_spring_security.spring_security.exceptions.UnauthorizedException;
 import com.learn_spring_security.spring_security.services.JwtService;
+import com.learn_spring_security.spring_security.services.SessionEntityService;
 import com.learn_spring_security.spring_security.services.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,6 +28,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserService userService;
+    private final SessionEntityService sessionEntityService;
 
     @Autowired
     @Qualifier("handlerExceptionResolver")
@@ -42,6 +46,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String token = requestTokenHeader.split("Bearer ")[1];
             Long userId = jwtService.getUserIdFromToken(token);
 
+            SessionEntity session = sessionEntityService.getSessionByUserId(userId)
+                    .orElseThrow(() -> new UnauthorizedException("Session expired"));
+
+            if (!session.getToken().equals(token)) {
+                throw new UnauthorizedException("Session invalid or logged in elsewhere");
+            }
+
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserEntity user = userService.getUserById(userId);
                 UsernamePasswordAuthenticationToken authenticationToken =
@@ -52,8 +63,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
             filterChain.doFilter(request, response);
-        } catch (Exception ex) {
+        } catch (UnauthorizedException ex) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write(
+                    "{\"error\": \"" + ex.getMessage() + "\"}"
+            );
+        }
+        catch (Exception ex) {
             handlerExceptionResolver.resolveException(request, response, null, ex);
         }
+
     }
 }

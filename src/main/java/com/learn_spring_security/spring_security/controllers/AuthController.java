@@ -5,6 +5,7 @@ import com.learn_spring_security.spring_security.dto.LoginDto;
 import com.learn_spring_security.spring_security.dto.SignupDto;
 import com.learn_spring_security.spring_security.dto.UserDto;
 import com.learn_spring_security.spring_security.services.AuthService;
+import com.learn_spring_security.spring_security.services.SessionEntityService;
 import com.learn_spring_security.spring_security.services.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +24,7 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthService authService;
+    private final SessionEntityService sessionEntityService;
 
     @PostMapping("/signup")
     public ResponseEntity<UserDto> signUp(@RequestBody SignupDto signUpDto) {
