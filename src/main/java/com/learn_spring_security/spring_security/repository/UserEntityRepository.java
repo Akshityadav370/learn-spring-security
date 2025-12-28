@@ -2,6 +2,7 @@ package com.learn_spring_security.spring_security.repository;
 
 import com.learn_spring_security.spring_security.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.Optional;
 
