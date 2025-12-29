@@ -3,6 +3,7 @@ package com.learn_spring_security.spring_security.dto;
 
 import com.learn_spring_security.spring_security.entity.enums.Permission;
 import com.learn_spring_security.spring_security.entity.enums.Role;
+import com.learn_spring_security.spring_security.entity.enums.Subscription;
 import lombok.Data;
 
 import java.util.Set;
@@ -14,4 +15,5 @@ public class SignupDto {
     private String name;
     private Set<Role> roles;
     private Set<Permission> permissions;
+    private Subscription subscription;
 }

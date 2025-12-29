@@ -27,9 +27,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final UserService userService;
     private final JwtService jwtService;
 
-    @Value("${deploy.env}")
-    private String deployEnv;
-
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
@@ -54,7 +51,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         Cookie cookie = new Cookie("refreshToken", refreshToken);
         cookie.setHttpOnly(true);
-        cookie.setSecure("production".equals(deployEnv));
+//        cookie.setSecure("production".equals(deployEnv));
         response.addCookie(cookie);
 
         String frontEndUrl = "http://localhost:8080/home.html?token="+accessToken;

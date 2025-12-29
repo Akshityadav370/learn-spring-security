@@ -46,12 +46,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String token = requestTokenHeader.split("Bearer ")[1];
             Long userId = jwtService.getUserIdFromToken(token);
 
-            SessionEntity session = sessionEntityService.getSessionByUserId(userId)
-                    .orElseThrow(() -> new UnauthorizedException("Session expired"));
-
-            if (!session.getToken().equals(token)) {
-                throw new UnauthorizedException("Session invalid or logged in elsewhere");
-            }
+//            SessionEntity session = sessionEntityService.getSessionByUserId(userId)
+//                    .orElseThrow(() -> new UnauthorizedException("Session expired"));
+//
+//            if (!session.getToken().equals(token)) {
+//                throw new UnauthorizedException("Session invalid or logged in elsewhere");
+//            }
 
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserEntity user = userService.getUserById(userId);

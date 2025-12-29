@@ -31,9 +31,26 @@ public class PostController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('POST_CREATE")
+    @PreAuthorize("hasAuthority('POST_CREATE')")
     public PostDTO createNewPost(@RequestBody PostDTO inputPost) {
         return postService.createNewPost(inputPost);
     }
 
+    @GetMapping("/free-plan")
+    @Secured("SUBSCRIPTION_FREE")
+    public String freePosts() {
+        return "Free Plan";
+    }
+
+    @GetMapping("/basic-plan")
+    @PreAuthorize("@subscriptionSecurity.isValidBasicPlan")
+    public String basicPosts() {
+        return "Basic Plan";
+    }
+
+    @GetMapping("/premium-plan")
+    @PreAuthorize("@subscriptionSecurity.isValidPremiumPlan")
+    public String premiumPosts() {
+        return "Premium Plan";
+    }
 }

@@ -2,6 +2,7 @@ package com.learn_spring_security.spring_security.entity;
 
 import com.learn_spring_security.spring_security.entity.enums.Permission;
 import com.learn_spring_security.spring_security.entity.enums.Role;
+import com.learn_spring_security.spring_security.entity.enums.Subscription;
 import com.learn_spring_security.spring_security.utils.PermissionMapping;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,6 +33,10 @@ public class UserEntity implements UserDetails {
     private String password;
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Subscription subscription;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
@@ -49,6 +54,8 @@ public class UserEntity implements UserDetails {
                     Set<SimpleGrantedAuthority> permissions = PermissionMapping.getAuthoritiesForRole(role);
                     authorities.addAll(permissions);
                     authorities.add(new SimpleGrantedAuthority("ROLE_"+role.name()));
+                    authorities.add(new SimpleGrantedAuthority("SUBSCRIPTION_" + subscription.name()));
+
                 }
         );
 
