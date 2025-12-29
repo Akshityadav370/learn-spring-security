@@ -44,10 +44,13 @@ public class AuthService {
         UserEntity user = userService.getUserById(userId);
 
         String accessToken = jwtService.generateAccessToken(user);
-        return new LoginResponseDto(user.getId(), accessToken, refreshToken);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+        sessionService.generateNewSession(user, newRefreshToken);
+
+        return new LoginResponseDto(user.getId(), accessToken, newRefreshToken);
     }
 
-    public void logout() {
+    public void logout(String refreshToken) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -57,7 +60,7 @@ public class AuthService {
         UserEntity user = (UserEntity) authentication.getPrincipal();
 
         if (user != null) {
-            sessionRepository.deleteByUser(user);
+            sessionRepository.deleteByRefreshToken(refreshToken);
         }
     }
 }
