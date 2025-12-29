@@ -4,6 +4,7 @@ package com.learn_spring_security.spring_security.controllers;
 import com.learn_spring_security.spring_security.dto.LoginDto;
 import com.learn_spring_security.spring_security.dto.SignupDto;
 import com.learn_spring_security.spring_security.dto.UserDto;
+import com.learn_spring_security.spring_security.entity.LoginResponseDto;
 import com.learn_spring_security.spring_security.services.AuthService;
 import com.learn_spring_security.spring_security.services.SessionEntityService;
 import com.learn_spring_security.spring_security.services.UserService;
@@ -33,14 +34,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto, HttpServletRequest request,
-                                        HttpServletResponse response) {
-        String token = authService.login(loginDto);
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginDto loginDto, HttpServletRequest request,
+                                                  HttpServletResponse response) {
+        LoginResponseDto loginResponseDto = authService.login(loginDto);
 
-        Cookie cookie = new Cookie("token", token);
+        Cookie cookie = new Cookie("refreshToken", loginResponseDto.getRefreshToken());
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(loginResponseDto);
     }
 }

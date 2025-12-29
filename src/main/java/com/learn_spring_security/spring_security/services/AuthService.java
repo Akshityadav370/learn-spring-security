@@ -1,6 +1,7 @@
 package com.learn_spring_security.spring_security.services;
 
 import com.learn_spring_security.spring_security.dto.LoginDto;
+import com.learn_spring_security.spring_security.entity.LoginResponseDto;
 import com.learn_spring_security.spring_security.entity.SessionEntity;
 import com.learn_spring_security.spring_security.entity.UserEntity;
 import com.learn_spring_security.spring_security.repository.SessionEntityRepository;
@@ -16,24 +17,26 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserService userService;
     private final SessionEntityRepository sessionEntityRepository;
 
-    public String login(LoginDto loginDto) {
+    public LoginResponseDto login(LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
         );
 
         UserEntity user = (UserEntity) authentication.getPrincipal();
-        String token = jwtService.generateToken(user);
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
-        SessionEntity session = sessionEntityRepository
-                .findByUserId(user.getId())
-                .orElse(new SessionEntity());
+        return new LoginResponseDto(user.getId(), accessToken, refreshToken);
+    }
 
-        session.setUserId(user.getId());
-        session.setToken(token);
-        sessionEntityRepository.save(session);
+    public LoginResponseDto refreshToken(String refreshToken) {
+        Long userId = jwtService.getUserIdFromToken(refreshToken);
+        UserEntity user = userService.getUserById(userId);
 
-        return token;
+        String accessToken = jwtService.generateAccessToken(user);
+        return new LoginResponseDto(user.getId(), accessToken, refreshToken);
     }
 }
