@@ -4,11 +4,14 @@ import com.learn_spring_security.spring_security.dto.LoginDto;
 import com.learn_spring_security.spring_security.entity.LoginResponseDto;
 import com.learn_spring_security.spring_security.entity.SessionEntity;
 import com.learn_spring_security.spring_security.entity.UserEntity;
+import com.learn_spring_security.spring_security.exceptions.UnauthorizedException;
 import com.learn_spring_security.spring_security.repository.SessionEntityRepository;
+import com.learn_spring_security.spring_security.repository.SessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +22,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserService userService;
     private final SessionEntityRepository sessionEntityRepository;
+    private final SessionRepository sessionRepository;
     private final SessionService sessionService;
 
     public LoginResponseDto login(LoginDto loginDto) {
@@ -41,5 +45,19 @@ public class AuthService {
 
         String accessToken = jwtService.generateAccessToken(user);
         return new LoginResponseDto(user.getId(), accessToken, refreshToken);
+    }
+
+    public void logout() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("User not authenticated");
+        }
+
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        if (user != null) {
+            sessionRepository.deleteByUser(user);
+        }
     }
 }
