@@ -36,15 +36,14 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDto signUp(SignupDto signUpDto) {
-        Optional<UserEntity> user = userRepository.findByEmail(signUpDto.getEmail());
-        if(user.isPresent()) {
-            throw new BadCredentialsException("User with email already exits "+ signUpDto.getEmail());
-        }
+        return null;
+    }
 
-        UserEntity toBeCreatedUser = modelMapper.map(signUpDto, UserEntity.class);
-        toBeCreatedUser.setPassword(passwordEncoder.encode(toBeCreatedUser.getPassword()));
+    public UserEntity getUsrByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
 
-        UserEntity savedUser = userRepository.save(toBeCreatedUser);
-        return modelMapper.map(savedUser, UserDto.class);
+    public UserEntity save(UserEntity newUser) {
+        return userRepository.save(newUser);
     }
 }
